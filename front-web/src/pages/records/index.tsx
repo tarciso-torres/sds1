@@ -1,15 +1,27 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import { formatDate } from './helpers';
 
 import './styles.css';
+import { RecordsResponse } from './types';
+
+import Pagination from './pagination';
+
 const BASE_URL = 'http://localhost:8080';
 
 const Records = () => {
 
+    const [ recordsResponse, setRecordsResponse ] = useState<RecordsResponse>();
+    const [ activePage, setActivePage ] = useState(0);
+
+    const handlePageChange = (index: number) => {
+        setActivePage(index)
+    }
+
     useEffect(() => {
-        axios.get(`${BASE_URL}/records?linesPerPage=12`)
-            .then(response => console.log(response));
-    }, []);
+        axios.get(`${BASE_URL}/records?linesPerPage=12&page=${activePage}`)
+            .then(response => setRecordsResponse(response.data));
+    }, [activePage]);
 
     return (
         <div className="page-container">
@@ -25,16 +37,23 @@ const Records = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    <tr>
-                        <td>20/08/2020 13:40</td>
-                        <td>Tarciso Torres</td>
-                        <td>35</td>
-                        <td>XBOX</td>
-                        <td>Ação - Aventura</td>
-                        <td>The last of US</td>
-                    </tr>
+                    {recordsResponse?.content.map(record => (
+                        <tr key={record.id}>
+                            <td>{formatDate(record.moment)}</td>
+                            <td>{record.name}</td>
+                            <td>{record.age}</td>
+                            <td className="text-secondary">{record.platform}</td>
+                            <td>{record.genreName}</td>
+                            <td className="text-primary">{record.gameTitle}</td>
+                        </tr>
+                    ))}
                 </tbody>
             </table>
+            <Pagination
+                activePage={activePage}
+                goToPage={handlePageChange}
+                totalPages={recordsResponse?.totalPages}
+            />
         </div>
     );
 }

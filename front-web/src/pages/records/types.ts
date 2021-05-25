@@ -10,7 +10,7 @@ export type RecordItem = {
     moment: string,
     gameTitle: string,
     platform: Platform,
-    gameName: string
+    genreName: string
 }
 
 export type Platform = 'XBOX' | 'PC' | 'PLAYSTATION';
